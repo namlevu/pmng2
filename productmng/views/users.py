@@ -6,14 +6,15 @@ user_bp = Blueprint('user', __name__)
 
 class UserAPI(MethodView):
     def get(self, user_id):
-        success = True
-        fail = False
-        msg = ""
-        if user_id is None:
-            users = User.objects.all()
-            return jsonify({'OK': success, 'message': msg, 'users': users}), 200
-        user = User.objects(id=user_id).first() # TODO: select User by id
-        return jsonify({'OK': success, 'message': msg, 'user': user, 'user_id': user_id}), 200
+        try:
+            if user_id is None:
+                users = User.objects.all()
+                return jsonify({'OK': True, 'message': 'this is all users', 'users': users}), 200
+            # else
+            user = User.objects(id=user_id).first() # TODO: select User by id
+            return jsonify({'OK': True, 'message': 'this is one user', 'user': user, 'user_id': user_id}), 200
+        except Exception as error:
+            return jsonify({'OK': False, 'message': repr(error)}), 404
 
     def post(self):
         req_data = request.get_json()

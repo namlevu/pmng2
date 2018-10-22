@@ -12,10 +12,11 @@ db = MongoEngine(app)
 
 
 def register_blueprints(app):
-    # TODO: Prevents circular imports
-    print('register_blueprints')
+    # Prevents circular imports
     # from xxx import xxx_bp
     # app.register_blueprint(xxx_bp, url_prefix='/xxx')
+    from productmng.views.users import user_bp
+    app.register_blueprint(user_bp,url_prefix='/api')
 
 
 register_blueprints(app)
