@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request
 from flask.views import MethodView
+import datetime
 
 from productmng.models import Photo, User, Cost, Product
 products_bp = Blueprint('products', __name__)
@@ -17,36 +18,65 @@ class ProductAPI(MethodView):
         return jsonify({'OK': success, 'message': msg, 'product': product, 'product_id': product_id}), 200
 
     def post(self):
-        req_data = request.get_json()
-        product = Product(name=req_data['name'],
-                          category=req_data['category'],
-                          brand=req_data['brand'],
-                          sale_price=req_data['sale_price'],
-                          history=req_data['history'],
-                          note=req_data['note'],
-                          sold=req_data['sold']
-                          )
-        #created_by=current_user # TODO: <--
-        costs=req_data['costs']
-        for cost in costs:
-            cost.save()
-            product.costs.append(cost)
-        photos=req_data['photos']
-        for photo in photos:
-            photo.save()
-            product.photos.append(photo)
+        try:
+            req_data = request.get_json()
+            current_user = User.objects(id=request.headers.get('user_id')).first()
+            import ast
+            product = Product(name=req_data['name'],
+                              category=req_data['category'],
+                              brand=req_data['brand'],
+                              sale_price=req_data['sale_price'],
+                              history=req_data['history'],
+                              note=req_data['note'],
+                              sold=ast.literal_eval(req_data['sold'])
+                              )
 
-        product.save()
+            costs=req_data['costs']
+            for cost_item in costs:
+                cost = Cost(amount=cost_item['amount'], reason=cost_item['reason'], created_by=current_user.id)
+                product.costs.append(cost)
 
-        return jsonify({'OK': True, 'message': 'Hello world Product post', 'req_data':req_data}), 200
+            photos=req_data['photos']
+            for photo_item in photos:
+                photo = Photo(url=photo_item['url'])
+                product.photos.append(photo)
+
+            product.created_by = current_user.id
+            product.save()
+        except Exception as e:
+            return jsonify({'OK': False, 'message': str(e)}), 401
+
+        return jsonify({'OK': True, 'message': 'Product created successful', 'product':product}), 200
 
     def put(self, product_id):
-        product = {}  # TODO: update product
-        return jsonify({'OK': True, 'message': 'Hello world Product put', 'product': product}), 200
+        try:
+            req_data = request.get_json()
+            current_user = User.objects(id=request.headers.get('user_id')).first()
+            product = Product.objects(id=product_id).first()
+
+            product.update(name=req_data['name'],
+                              category=req_data['category'],
+                              brand=req_data['brand'],
+                              sale_price=req_data['sale_price'],
+                              history=req_data['history'],
+                              note=req_data['note'],
+                              sold=bool(req_data['sold']),
+                              costs=req_data['costs'],
+                              photos=req_data['costs'],
+                              updated_by=current_user.id,
+                              updated_at=datetime.datetime.now
+                              )
+
+        except Exception as e:
+            print("Error----------------------------------");
+            return jsonify({'OK': False, 'message': str(e)}), 401
+        return jsonify({'OK': True, 'message': 'Product updated successful', 'product': product}), 200
 
     def delete(self, product_id):
-        product = {}  # TODO: delete product by id
-        return jsonify({'OK': True, 'message': 'Hello world Product delete'}), 200
+        product = Product.objects(id=product_id).first()
+        product.delete()
+
+        return jsonify({'OK': True, 'message': 'Product deleted successful'}), 200
 
 
 # Register the urls

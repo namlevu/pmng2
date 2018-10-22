@@ -27,7 +27,7 @@ class User(db.DynamicDocument):
 class Cost(db.DynamicDocument):
     amount = db.IntField()
     reason = db.StringField()
-    created_by = db.EmbeddedDocumentField('User')
+    created_by = db.ReferenceField('User')
     created_at = db.DateTimeField(default=datetime.datetime.now, required=True)
 
 class TrackingStatus(db.DynamicDocument):
@@ -41,9 +41,9 @@ class Product(db.DynamicDocument):
     photos = db.ListField(db.EmbeddedDocumentField('Photo'))
     costs = db.ListField(db.EmbeddedDocumentField('Cost'))
     sale_price = db.IntField()
-    created_by = db.EmbeddedDocumentField('User')
+    created_by = db.ReferenceField('User')
     created_at = db.DateTimeField(default=datetime.datetime.now, required=True)
-    updated_by = db.EmbeddedDocumentField('User')
+    updated_by = db.ReferenceField('User')
     updated_at = db.DateTimeField()
     status = db.EmbeddedDocumentField('TrackingStatus')
     history = db.StringField()

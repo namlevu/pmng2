@@ -19,6 +19,8 @@ def register_blueprints(app):
     app.register_blueprint(user_bp, url_prefix='/api')
     from productmng.views.auth import auth_bp
     app.register_blueprint(auth_bp, url_prefix='/auth')
+    from productmng.views.products import products_bp
+    app.register_blueprint(products_bp, url_prefix='/api')
 
 
 register_blueprints(app)

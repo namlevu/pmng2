@@ -4,7 +4,7 @@ from functools import wraps
 from flask import flash, jsonify, abort, request
 from productmng.models import User
 
-
+CurrentUser = None
 def check_session_expired(func):
     @wraps(func)
     def decorated_function(*args, **kwargs):
@@ -17,7 +17,7 @@ def check_session_expired(func):
 
         except Exception as error:
             abort(401)
-
+        CurrentUser = user
         return func(*args, **kwargs)
 
     return decorated_function
