@@ -2,9 +2,12 @@ from flask import Blueprint, jsonify, request
 from flask.views import MethodView
 
 from productmng.models import User
+from productmng.util import check_session_expired
+
 user_bp = Blueprint('user', __name__)
 
 class UserAPI(MethodView):
+    @check_session_expired
     def get(self, user_id):
         try:
             if user_id is None:
@@ -16,6 +19,7 @@ class UserAPI(MethodView):
         except Exception as error:
             return jsonify({'OK': False, 'message': repr(error)}), 404
 
+    @check_session_expired
     def post(self):
         req_data = request.get_json()
         user = User(username=req_data['username'], fullname=req_data['fullname'], email=req_data['email'])
@@ -25,10 +29,12 @@ class UserAPI(MethodView):
 
         return jsonify({'OK': True, 'message': 'user post', 'req_data':req_data, 'user_id':str(user.id)}), 200
 
+    @check_session_expired
     def put(self, user_id):
         user = {}  # TODO: update User
         return jsonify({'OK': True, 'message': 'user update', 'user': user}), 200
 
+    @check_session_expired
     def delete(self, user_id):
         if user_id is not None:
             user = User.objects(id=user_id).first()

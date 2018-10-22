@@ -8,12 +8,14 @@ class Photo(db.DynamicDocument):
 
 
 class User(db.DynamicDocument):
-    username = db.StringField()
+    username = db.StringField(required=True)
     photo = db.EmbeddedDocumentField('Photo')
     fullname = db.StringField()
-    email = db.StringField()
+    email = db.StringField(required=True)
     password_hash = db.StringField()
-    disabled = db.BooleanField()
+    disabled = db.BooleanField(default=False, required=True)
+    current_session = db.StringField()
+    logined_at = db.DateTimeField()
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
