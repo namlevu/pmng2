@@ -5,5 +5,8 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from productmng import app
 port = int(os.getenv('PORT', 8000))
 
+import setup
+setup.run()
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0',port=port, debug=True)
